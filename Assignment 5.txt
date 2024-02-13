@@ -1,0 +1,60 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+// Function to find the longest common substring (LCS) of two strings
+string LCS(const string& str1, const string& str2) {
+    int n = str1.length();
+
+    // Create a 2D table to store LCS lengths
+    vector<vector<int>> dp(n + 1, vector<int>(n + 1, 0));
+
+    // Fill the table using dynamic programming
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= n; ++j) {
+            if (str1[i - 1] == str2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            } else {
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+    }
+
+    // Backtrack to find the actual LCS using the table
+    int i = n, j = n, maxLen = dp[i][j];
+    string lcs;
+
+    while (i > 0 && j > 0) {
+        if (str1[i - 1] == str2[j - 1]) {
+            lcs.insert(0, 1, str1[i - 1]);
+            --i;
+            --j;
+        } else if (dp[i - 1][j] >= dp[i][j - 1]) {
+            --i;
+        } else {
+            --j;
+        }
+    }
+
+    return lcs;
+}
+
+int main() {
+    string str1, str2;
+    cout << "Enter two strings (assumed to be identical in length):\n";
+    cin >> str1 >> str2;
+
+    // Ensure strings are identical in length
+    if (str1.length() != str2.length()) {
+        cerr << "Error: Strings must have the same length.\n";
+        return 1;
+    }
+
+    string lcs = LCS(str1, str2);
+
+    cout << "Longest common substring: " << lcs << endl;
+
+    return 0;
+}
