@@ -1,0 +1,77 @@
+#include <iostream>
+#include <queue>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+struct Node {
+    char ch;
+    int freq;
+    Node* left, *right;
+
+    Node(char ch, int freq) : ch(ch), freq(freq), left(nullptr), right(nullptr) {}
+};
+
+// Custom comparator for priority queue (min-heap based on frequency)
+struct Compare {
+    bool operator()(Node* a, Node* b) {
+        return a->freq > b->freq;
+    }
+};
+
+// Function to build the Huffman tree
+Node* buildHuffmanTree(const string& S, const vector<int>& f) {
+    priority_queue<Node*, vector<Node*>, Compare> pq;
+
+    // Create leaf nodes for each character
+    for (int i = 0; i < S.size(); ++i) {
+        pq.push(new Node(S[i], f[i]));
+    }
+
+    // Build the tree
+    while (pq.size() > 1) {
+        Node* left = pq.top();
+        pq.pop();
+        Node* right = pq.top();
+        pq.pop();
+
+        // Create a new internal node with combined frequency
+        Node* parent = new Node('\0', left->freq + right->freq);
+        parent->left = left;
+        parent->right = right;
+
+        pq.push(parent);
+    }
+
+    return pq.top();
+}
+
+// Function to generate and print Huffman codes using preorder traversal
+void printCodes(Node* root, string code, unordered_map<char, string>& codes) {
+    if (root == nullptr) {
+        return;
+    }
+
+    if (root->ch != '\0') { // Leaf node
+        codes[root->ch] = code;
+        cout << code << " ";
+    }
+
+    printCodes(root->left, code + "0", codes);
+    printCodes(root->right, code + "1", codes);
+}
+
+int main() {
+    string S = "abcdef";
+    vector<int> f = {5, 9, 12, 13, 16, 45};
+
+    Node* root = buildHuffmanTree(S, f);
+
+    unordered_map<char, string> codes;
+    printCodes(root, "", codes);
+
+    cout << endl; // Add a newline for better formatting
+
+    return 0;
+}
